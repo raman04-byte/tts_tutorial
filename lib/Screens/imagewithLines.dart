@@ -11,7 +11,7 @@ import '../utils/textBlockPainter.dart';
 class ImageWithTextLines extends StatefulWidget {
   final String imagePath;
   final List<TextBlock> textBlock;
-  List<TextLine> textLine = [];
+  final List<TextLine> textLine = [];
   ImageWithTextLines(
       {super.key, required this.imagePath, required this.textBlock});
 
@@ -22,7 +22,6 @@ class ImageWithTextLines extends StatefulWidget {
 class _ImageWithTextLinesState extends State<ImageWithTextLines> {
   List<String> convertedLanguageBlockList = [];
   List<TextLine> textLines = [];
-  TextLine? _textLine;
   bool isSpeaking = false;
   FlutterTts flutterTts = FlutterTts();
   List<TextBlock> convertedLanguageTextBlock = [];
