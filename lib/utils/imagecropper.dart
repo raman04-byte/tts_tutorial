@@ -14,7 +14,7 @@ CroppedFile? croppedFile = await ImageCropper().cropImage(
       uiSettings: [
         AndroidUiSettings(
             toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepPurple,
+            toolbarColor: Colors.purple,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false),

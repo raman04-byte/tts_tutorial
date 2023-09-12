@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:tts_tutorial/utils/textblock.dart';
+
+import '../utils/textBlockPainter.dart';
 
 class ImageWithTextLines extends StatefulWidget {
   final String imagePath;
@@ -196,8 +198,66 @@ class _ImageWithTextLinesState extends State<ImageWithTextLines> {
       body: FutureBuilder<Size>(
         future: _getImageSize(widget.imagePath),
         builder: (BuildContext context, AsyncSnapshot<Size> snapshot) {
-          if (snapshot.hasData) {}
-          return const Center(child: CircularProgressIndicator());
+          if (snapshot.hasData) {
+            return Container(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.file(
+                    File(widget.imagePath),
+                    fit: BoxFit.fill,
+                  ),
+                  if (convertedLanguageBlockList.length ==
+                      widget.textBlock.length)
+                    CustomPaint(
+                      painter: TextBlockPainters(
+                          textBlocks: widget.textBlock,
+                          imageSize: snapshot.data!,
+                          convertedBlocks: convertedLanguageBlockList),
+                    ),
+                  if (currentBlock != null)
+                    CustomPaint(
+                      painter: TextBlockPainter(
+                        textBlock: currentBlock!,
+                        imageSize: snapshot.data!,
+                        completeString: completeString,
+                        wordToBeSpoken: wordToBeSpoken,
+                      ),
+                    ),
+                  GestureDetector(
+                    onTapUp: (TapUpDetails details) async {
+                      final RenderBox box =
+                          context.findRenderObject() as RenderBox;
+                      final Offset localPosition =
+                          box.globalToLocal(details.globalPosition);
+                      final Size size = box.size;
+                      final tappedTextBlock = _findTappedTextBlock(
+                          localPosition, size, snapshot.data!);
+                      if (tappedTextBlock != null) {
+                        if (isSpeaking) {
+                          isSpeaking = false;
+                          print("Stopping");
+                        }
+                        await flutterTts.stop().then((value) async {
+                          await Future.delayed(Duration(milliseconds: 500));
+                          isSpeaking = true;
+                          speaklines(widget.textBlock.indexOf(tappedTextBlock));
+                        });
+                      } else {
+                        isSpeaking = true;
+                        speaklines(widget.textBlock.indexOf(tappedTextBlock!));
+                      }
+                    },
+                  )
+                ],
+              ),
+            );
+          }
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.blueAccent,
+            ),
+          );
         },
       ),
     );
